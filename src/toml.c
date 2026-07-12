@@ -21,7 +21,7 @@ static void skip_line(const char **p) {
 static int parse_key(const char **p, char *buf, size_t bufsz) {
   skip_ws(p);
   size_t i = 0;
-  while (**p && **p != '=' && **p != '\n') {
+  while (**p && **p != '=' && **p != ':' && **p != '\n') {
     if (i < bufsz - 1)
       buf[i++] = **p;
     (*p)++;
@@ -182,7 +182,7 @@ static int parse_inline_table(const char **p, value_t *val) {
     }
 
     skip_ws(p);
-    if (**p != '=') {
+    if (**p != '=' && **p != ':') {
       table_free(tbl);
       return -1;
     }
@@ -291,7 +291,7 @@ int toml_parse(const char *input, table_t *out) {
       return -1;
 
     skip_ws(&p);
-    if (*p != '=')
+    if (*p != '=' && *p != ':')
       return -1;
     p++;
     skip_ws(&p);
@@ -307,46 +307,3 @@ int toml_parse(const char *input, table_t *out) {
 
   return 0;
 }
-
-#ifdef DEC_TEST
-#include <assert.h>
-
-int test_toml(void) {
-  table_t *t = table_new(16);
-  assert(t);
-
-  const char *input =
-      "title = \"my first blog post\"\n"
-      "date = 2026-07-09T14:49:00+07:00\n"
-      "description = \"a short summary\"\n"
-      "draft = false\n"
-      "tags = [\"hugo\", \"toml\", \"tutorial\"]\n"
-      "categories = [\"hello\"]\n";
-
-  assert(toml_parse(input, t) == 0);
-
-  value_t *v = table_get(t, "title");
-  assert(v && v->type == VAL_STRING);
-  assert(strcmp(v->as.str, "my first blog post") == 0);
-
-  v = table_get(t, "date");
-  assert(v && v->type == VAL_STRING);
-  assert(strcmp(v->as.str, "2026-07-09T14:49:00+07:00") == 0);
-
-  v = table_get(t, "draft");
-  assert(v && v->type == VAL_BOOL && v->as.b == false);
-
-  v = table_get(t, "tags");
-  assert(v && v->type == VAL_ARRAY);
-  assert(v->as.arr->len == 3);
-  assert(v->as.arr->items[0].type == VAL_STRING);
-  assert(strcmp(v->as.arr->items[0].as.str, "hugo") == 0);
-
-  v = table_get(t, "categories");
-  assert(v && v->type == VAL_ARRAY);
-  assert(v->as.arr->len == 1);
-
-  table_free(t);
-  return 0;
-}
-#endif

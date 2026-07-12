@@ -66,13 +66,16 @@ static int write_file(const char *path, const char *data) {
 static int split_fm(const char *buf, char **fm, char **body) {
   *fm = NULL;
 
-  if (strncmp(buf, "+++\n", 4) != 0) {
+  if (strncmp(buf, "+++\n", 4) != 0 && strncmp(buf, "---\n", 4) != 0) {
     *body = strdup(buf);
     return *body ? 0 : -1;
   }
 
   const char *p = buf + 4;
   const char *end = strstr(p, "\n+++");
+  if (!end)
+    end = strstr(p, "\n---");
+
   if (!end) {
     *body = strdup(buf);
     return *body ? 0 : -1;

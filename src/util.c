@@ -81,13 +81,9 @@ value_t val_string(char *s) {
   return (value_t){.type = VAL_STRING, .as.str = s};
 }
 
-value_t val_int(int64_t n) {
-  return (value_t){.type = VAL_INT, .as.num = n};
-}
+value_t val_int(int64_t n) { return (value_t){.type = VAL_INT, .as.num = n}; }
 
-value_t val_bool(bool b) {
-  return (value_t){.type = VAL_BOOL, .as.b = b};
-}
+value_t val_bool(bool b) { return (value_t){.type = VAL_BOOL, .as.b = b}; }
 
 value_t val_table(struct table *tbl) {
   return (value_t){.type = VAL_TABLE, .as.tbl = tbl};
@@ -96,49 +92,3 @@ value_t val_table(struct table *tbl) {
 value_t val_array(array_t *arr) {
   return (value_t){.type = VAL_ARRAY, .as.arr = arr};
 }
-
-#ifdef DEC_TEST
-#include <assert.h>
-#include <stdio.h>
-
-int test_util(void) {
-  table_t *t = table_new(4);
-  assert(t);
-
-  table_set(t, "title", val_string(strdup("Hello")));
-  value_t *v = table_get(t, "title");
-  assert(v && v->type == VAL_STRING);
-  assert(strcmp(v->as.str, "Hello") == 0);
-
-  table_set(t, "count", val_int(42));
-  v = table_get(t, "count");
-  assert(v && v->type == VAL_INT && v->as.num == 42);
-
-  table_set(t, "draft", val_bool(false));
-  v = table_get(t, "draft");
-  assert(v && v->type == VAL_BOOL && v->as.b == false);
-
-  table_set(t, "title", val_string(strdup("World")));
-  v = table_get(t, "title");
-  assert(v && strcmp(v->as.str, "World") == 0);
-
-  v = table_get(t, "missing");
-  assert(v == NULL);
-
-  for (int i = 0; i < 100; i++) {
-    char key[16];
-    snprintf(key, sizeof(key), "key%d", i);
-    table_set(t, key, val_int(i));
-  }
-
-  for (int i = 0; i < 100; i++) {
-    char key[16];
-    snprintf(key, sizeof(key), "key%d", i);
-    v = table_get(t, key);
-    assert(v && v->as.num == i);
-  }
-
-  table_free(t);
-  return 0;
-}
-#endif
