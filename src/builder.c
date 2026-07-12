@@ -1,15 +1,19 @@
 #define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
 
 #include "builder.h"
 #include "template.h"
 #include "toml.h"
 #include "util.h"
+#include <asm-generic/errno-base.h>
 #include <cmark.h>
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define PER_PAGE 6
 
@@ -110,10 +114,10 @@ static int cmp_date(const void *a, const void *b) {
   return strcmp(pb->date, pa->date);
 }
 
-static int build_blog(void) {
+static void build_blog() {
   DIR *d = opendir("content/blog");
   if (!d)
-    return 0;
+    return;
 
   post_t **posts = NULL;
   int n = 0, cap = 0;
@@ -165,7 +169,7 @@ static int build_blog(void) {
         free(html);
         table_free(ctx);
         closedir(d);
-        return -1;
+        return;
       }
     }
 
@@ -187,7 +191,7 @@ static int build_blog(void) {
 
   if (n == 0) {
     free(posts);
-    return 0;
+    return;
   }
 
   qsort(posts, n, sizeof(post_t *), cmp_date);
@@ -294,10 +298,10 @@ static int build_blog(void) {
   free(posts);
 
   printf("blog: %d posts, %d pages\n", n, n_pages);
-  return 0;
+  return;
 }
 
-int build_site(void) {
+void build_site() {
   mkdir("public", 0755);
 
   build_blog();
@@ -305,7 +309,7 @@ int build_site(void) {
   DIR *d = opendir("content");
   if (!d) {
     perror("content");
-    return 1;
+    return;
   }
 
   struct dirent *ent;
@@ -379,5 +383,47 @@ int build_site(void) {
 
   closedir(d);
   printf("flat: %d pages\n", n);
-  return 0;
+  return;
+}
+
+void build_media() {
+  const char *dirs[] = {"media", "public/media"};
+  for (int i = 0; i < 2; i++) {
+    if (access(dirs[i], F_OK) != 0) {
+      if (errno == ENOENT) {
+        if (mkdir(dirs[i], 0755) != 0) {
+          perror("mkdir");
+          return;
+        }
+      } else {
+        perror("access");
+        return;
+      }
+    }
+  }
+
+  const char *src = "./media";
+  const char *dst = "./public/media";
+  DIR *dir = opendir(src);
+  if (dir == NULL) {
+    perror("unable to open src dir");
+    return;
+  }
+
+  struct dirent *entry;
+  char srcfp[1024];
+  char dstfp[1024];
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue;
+    }
+    if (entry->d_type == DT_REG) {
+      snprintf(srcfp, sizeof(srcfp), "%s/%s", src, entry->d_name);
+      snprintf(dstfp, sizeof(dstfp), "%s/%s", dst, entry->d_name);
+      copy_folder(srcfp, dstfp);
+    }
+  }
+  closedir(dir);
+  return;
 }

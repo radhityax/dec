@@ -1,3 +1,6 @@
+*.o
+media/
+dec
 public/
 lib/
 content/

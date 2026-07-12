@@ -1,17 +1,11 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 
-typedef enum {
-  VAL_STRING,
-  VAL_INT,
-  VAL_BOOL,
-  VAL_ARRAY,
-  VAL_TABLE
-} val_type_t;
+typedef enum { VAL_STRING, VAL_INT, VAL_BOOL, VAL_ARRAY, VAL_TABLE } val_type_t;
 
 typedef struct value {
   val_type_t type;
@@ -52,4 +46,5 @@ value_t val_bool(bool b);
 value_t val_table(struct table *tbl);
 value_t val_array(array_t *arr);
 
+void copy_folder(const char *src, const char *dest);
 #endif

@@ -1,4 +1,5 @@
 #ifndef BUILDER_H
 #define BUILDER_H
-int build_site(void);
+void build_media();
+void build_site();
 #endif

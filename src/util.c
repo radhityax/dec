@@ -1,9 +1,11 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "util.h"
+#include <dirent.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <sys/stat.h>
 table_t *table_new(size_t cap) {
   table_t *t = malloc(sizeof(table_t));
   if (!t)
@@ -91,4 +93,28 @@ value_t val_table(struct table *tbl) {
 
 value_t val_array(array_t *arr) {
   return (value_t){.type = VAL_ARRAY, .as.arr = arr};
+}
+
+void copy_folder(const char *src, const char *dst) {
+  FILE *src_path = fopen(src, "rb");
+  FILE *dst_path = fopen(dst, "wb");
+
+  if (src_path == NULL || dst_path == NULL) {
+    printf("error opening file\n");
+    if (src_path)
+      fclose(src_path);
+    if (dst_path)
+      fclose(dst_path);
+    return;
+  }
+
+  char buffer[4096];
+  size_t bytes_read;
+
+  while ((bytes_read = fread(buffer, 1, sizeof(buffer), src_path)) > 0) {
+    fwrite(buffer, 1, bytes_read, dst_path);
+  }
+
+  fclose(src_path);
+  fclose(dst_path);
 }

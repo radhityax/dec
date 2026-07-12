@@ -26,7 +26,9 @@ int main(int argc, char **argv) {
   }
 
   if (strcmp(cmd, "build") == 0) {
-    return build_site();
+    build_site();
+    build_media();
+    return 0;
   }
 
   fprintf(stderr, "unknown command: %s\n", cmd);

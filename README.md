@@ -1,3 +1,24 @@
+dec
+===
+
+you need
+- libcmark-dev
+
+building
+========
+
 ```bash
-$ cmake -B build && cmake --build build
+$ make
 ```
+
+usage
+=====
+
+```bash
+$ ./dec build   
+```
+
+thanks
+======
+
+- libcmark
