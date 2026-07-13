@@ -1,4 +1,5 @@
 #include "builder.h"
+#include "server.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -31,6 +32,11 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  if (strcmp(cmd, "serve") == 0) {
+    build_site();
+    build_media();
+    serve_site();
+  }
   fprintf(stderr, "unknown command: %s\n", cmd);
   print_usage(argv[0]);
   return 1;

@@ -8,7 +8,7 @@ LIBS = -lcmark
 
 all: dec
 
-dec: main.o builder.o util.o toml.o template.o
+dec: main.o builder.o server.o util.o toml.o template.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean:
