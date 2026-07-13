@@ -1,10 +1,13 @@
 #include "server.h"
+#include "builder.h"
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/inotify.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -169,4 +172,40 @@ void serve_site(void) {
 
   close(server_fd);
   return;
+}
+
+static void *watcher_loop(void *arg) {
+  (void)arg;
+
+  int fd = inotify_init();
+  if (fd < 0) {
+    perror("inotify_init");
+    return NULL;
+  }
+
+  inotify_add_watch(fd, "content", IN_MODIFY | IN_CREATE | IN_DELETE);
+  inotify_add_watch(fd, "layouts", IN_MODIFY | IN_CREATE | IN_DELETE);
+  inotify_add_watch(fd, "media", IN_MODIFY | IN_CREATE | IN_DELETE);
+
+  char buf[4096];
+
+  while (1) {
+    read(fd, buf, sizeof(buf));
+    sleep(1);
+
+    printf("\nchanges detected, rebuilding..");
+    build_site(NULL);
+    build_media(NULL);
+    printf("rebuilt.\n");
+  }
+}
+
+void serve_dev(void) {
+  build_site(NULL);
+  build_media(NULL);
+
+  pthread_t tid;
+  pthread_create(&tid, NULL, watcher_loop, NULL);
+
+  serve_site();
 }

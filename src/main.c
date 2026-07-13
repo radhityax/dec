@@ -1,8 +1,8 @@
 #include "builder.h"
 #include "server.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
-
 #define VERSION "0.1.0"
 
 static void print_usage(const char *prog) {
@@ -33,9 +33,8 @@ int main(int argc, char **argv) {
   }
 
   if (strcmp(cmd, "serve") == 0) {
-    build_site();
-    build_media();
-    serve_site();
+    serve_dev();
+    return 0;
   }
   fprintf(stderr, "unknown command: %s\n", cmd);
   print_usage(argv[0]);

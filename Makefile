@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -std=c11 -Os -s -DNDEBUG
-CFLAGS += -flto -Wall -Wextra -Wpedantic
-LDFLAGS = -s 
+CFLAGS += -flto -Wall -Wextra -Wpedantic -pthread
+LDFLAGS = -s -pthread 
 LIBS = -lcmark
 
 .PHONY: all clean debug	
