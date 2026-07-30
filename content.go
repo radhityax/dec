@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"github.com/BurntSushi/toml"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/renderer/html"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
-
-	"github.com/BurntSushi/toml"
 )
 
 type Page struct {
@@ -18,7 +21,7 @@ type Page struct {
 	FilePath string
 }
 
-func (p *Page) parse(filecontent string) {
+func (p *Page) parse(filecontent string) error {
 	file, err := os.Open(filecontent)
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
@@ -29,7 +32,7 @@ func (p *Page) parse(filecontent string) {
 
 	if !scanner.Scan() {
 		fmt.Println("file is empty or gone?")
-		return
+		return nil
 	}
 
 	delimiter := strings.TrimSpace(scanner.Text())
@@ -46,7 +49,7 @@ func (p *Page) parse(filecontent string) {
 
 	if frontmatter.Len() > 0 {
 		if _, err := toml.Decode(frontmatter.String(), &p.Meta); err != nil {
-			log.Fatal("failed to parse frontmatter: %v", err)
+			log.Fatalf("failed to parse frontmatter: %v", err)
 		}
 	}
 
@@ -56,4 +59,26 @@ func (p *Page) parse(filecontent string) {
 	}
 
 	p.Content = content.String()
+
+	return nil
+}
+
+func (p *Page) WriteHTML(text string) error {
+	basename := strings.TrimSuffix(filepath.Base(p.FilePath), ".md")
+	outpath := filepath.Join(conf.Main.Output, basename, "index.html")
+	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {
+		return fmt.Errorf("failed to create dir: %w", err)
+	}
+
+	md := goldmark.New(goldmark.WithRendererOptions(html.WithUnsafe()))
+	var buf bytes.Buffer
+	if err := md.Convert([]byte(text), &buf); err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	if err := os.WriteFile(outpath, buf.Bytes(), 0644); err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	return nil
 }

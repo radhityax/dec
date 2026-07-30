@@ -4,7 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"io/fs"
+	"log"
 	"os"
+	"path/filepath"
 )
 
 var conf Config
@@ -27,21 +30,43 @@ func main() {
 		if *configPath != "" {
 			path = *configPath
 		}
+
 		_, err := toml.DecodeFile(path, &conf)
 		if err != nil {
 			os.Exit(1)
 		}
 
-		fmt.Printf("Draft: %v\nConfig: %s\n", *draft, *configPath)
+		p.build(*draft)
+
 		fmt.Println("building site...")
 	default:
 		fmt.Fprintln(os.Stderr, "usage: dec <command> [flags]")
 		os.Exit(1)
 	}
+}
 
-	fmt.Printf("title: %s\nurl: %s\noutput: %s\n", conf.Main.Title, conf.Main.Url, conf.Main.Output)
+func (p *Page) build(draft bool) {
+	_ = filepath.WalkDir("content", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() || filepath.Ext(path) != ".md" {
+			return nil
+		}
 
-	p.parse("content/sample_hugo.md")
-	fmt.Printf("%s\n", p.Meta)
-	fmt.Printf("%s\n", p.Content)
+		p.FilePath = path
+		if err := p.parse(path); err != nil {
+			log.Printf("skip %s: %v", path, err)
+			return nil
+		}
+
+		if isDraft, ok := p.Meta["draft"].(bool); ok && isDraft && !draft {
+			return nil
+		}
+
+		if err := p.WriteHTML(p.Content); err != nil {
+			log.Printf("%s: %v", path, err)
+		}
+		return nil
+	})
 }
