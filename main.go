@@ -8,6 +8,7 @@ import (
 )
 
 var conf Config
+var p Page
 
 func main() {
 	if len(os.Args) < 2 {
@@ -39,4 +40,8 @@ func main() {
 	}
 
 	fmt.Printf("title: %s\nurl: %s\noutput: %s\n", conf.Main.Title, conf.Main.Url, conf.Main.Output)
+
+	p.parse("content/sample_hugo.md")
+	fmt.Printf("%s\n", p.Meta)
+	fmt.Printf("%s\n", p.Content)
 }
