@@ -1,0 +1,4 @@
+[main]
+title = "dec blog"
+url = "localhost"
+output = "public"
