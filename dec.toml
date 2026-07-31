@@ -1,0 +1,5 @@
+[main]
+title = "radhitya.org"
+url = "localhost"
+output = "public"
+amount = 5

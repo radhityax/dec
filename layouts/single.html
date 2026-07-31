@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Site.Title }}</title>
+    <title>{{ .Title }}</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -19,18 +19,13 @@
             </ul>
         </nav>
         
-        <main>
-            <h1>Welcome</h1>
-            <p>Recent posts:</p>
-            <div class="posts">
-                {{ range .Posts }}
-                <article>
-                    <time>{{ .Date }}</time>
-                    <a href="{{ .URL }}">{{ .Title }}</a>
-                </article>
-                {{ end }}
+        <article>
+            <h1>{{ .Title }}</h1>
+            <time>{{ .Date }}</time>
+            <div class="content">
+                {{ .Body | safeHTML }}
             </div>
-        </main>
+        </article>
     </div>
     
     <footer>
