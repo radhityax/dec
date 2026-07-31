@@ -20,7 +20,28 @@ type Template struct {
 	Site  Site
 }
 
-func (t *Template) render(file, header, footer, outpath, htmlContent string) error {
+type IndexData struct {
+	Site       Site
+	Posts      []Post
+	Pagination Pagination
+}
+
+type Post struct {
+	Title string
+	Date  string
+	URL   string
+}
+
+type Pagination struct {
+	CurrentPage int
+	TotalPages  int
+	HasPrev     bool
+	HasNext     bool
+	PrevURL     string
+	NextURL     string
+}
+
+func (t *Template) render(file, header, footer, outpath, htmlContent string, page *Page) error {
 
 	funcMap := template.FuncMap{
 		"dateFormat": func(format string, t time.Time) string { return t.Format(format) },
@@ -34,17 +55,19 @@ func (t *Template) render(file, header, footer, outpath, htmlContent string) err
 		return fmt.Errorf("%w\n", err)
 	}
 
-	title, ok := p.Meta["title"].(string)
+	title, ok := page.Meta["title"].(string)
 	if !ok {
 		return fmt.Errorf("missing title in frontmatter")
 	}
 
 	var dateStr string
-	switch d := p.Meta["date"].(type) {
+	switch d := page.Meta["date"].(type) {
 	case string:
 		dateStr = d
 	case time.Time:
 		dateStr = d.Format("2006-01-02")
+	case nil:
+		dateStr = ""
 	default:
 		return fmt.Errorf("invalid date type in frontmatter")
 	}

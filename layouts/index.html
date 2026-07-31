@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Site.Title }}</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <a href="/" class="site-title">{{ .Site.Title }}</a>
+    </header>
+    
+    <div class="container">
+        <nav id="side-bar">
+            <ul>
+                <li><a href="/">&rsaquo; home</a></li>
+                <li><a href="/blog">&rsaquo; blog</a></li>
+            </ul>
+        </nav>
+        
+        <main>
+            <h1>Welcome</h1>
+            <p>Recent posts:</p>
+            <div class="posts">
+                {{ range .Posts }}
+                <article>
+                    <time>{{ .Date }}</time>
+                    <a href="{{ .URL }}">{{ .Title }}</a>
+                </article>
+                {{ end }}
+            </div>
+        </main>
+    </div>
+    
+    <footer>
+        <p>&copy; {{ now | dateFormat "2006" }} {{ .Site.Title }}</p>
+    </footer>
+</body>
+</html>

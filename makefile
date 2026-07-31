@@ -1,14 +1,14 @@
 .POSIX:
 
 BINARY = dec
-PREFIX = /usr/local/ 
+PREFIX = /usr/local
 
 all:
 	CGO_ENABLED=0 go build -o $(BINARY)
 
-instal: all
-	mkdir -p $(DESTDIR)$(PREFIX)/bin 
-	cp -f $(BINARY) $(DESTDIR)$(PREFIX)/bin	
+install: all
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp -f $(BINARY) $(DESTDIR)$(PREFIX)/bin/
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(BINARY)

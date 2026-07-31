@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - {{ .Site.Title }}</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <a href="/" class="site-title">{{ .Site.Title }}</a>
+    </header>
+    
+    <div class="container">
+        <nav id="side-bar">
+            <ul>
+                <li><a href="/">&rsaquo; home</a></li>
+                <li><a href="/blog">&rsaquo; blog</a></li>
+            </ul>
+        </nav>
+        
+        <main>
+            <h1>Blog</h1>
+            {{ if .Posts }}
+            <div class="posts">
+                {{ range .Posts }}
+                <article>
+                    <time>{{ .Date }}</time>
+                    <a href="{{ .URL }}">{{ .Title }}</a>
+                </article>
+                {{ end }}
+            </div>
+            
+            {{ if or .Pagination.HasPrev .Pagination.HasNext }}
+            <nav class="pagination">
+                {{ if .Pagination.HasPrev }}
+                <a href="{{ .Pagination.PrevURL }}">&larr; Previous</a>
+                {{ end }}
+                
+                <span>Page {{ .Pagination.CurrentPage }} of {{ .Pagination.TotalPages }}</span>
+                
+                {{ if .Pagination.HasNext }}
+                <a href="{{ .Pagination.NextURL }}">Next &rarr;</a>
+                {{ end }}
+            </nav>
+            {{ end }}
+            {{ else }}
+            <p>No posts yet.</p>
+            {{ end }}
+        </main>
+    </div>
+    
+    <footer>
+        <p>&copy; {{ now | dateFormat "2006" }} {{ .Site.Title }}</p>
+    </footer>
+</body>
+</html>
