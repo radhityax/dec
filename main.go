@@ -75,7 +75,11 @@ func (p *Page) build(draft bool) []Page {
 		}
 
 		var page Page
+		var check bool
+		var basename string
 		page.FilePath = path
+		check = strings.Contains(path, "blog")
+
 		if err := page.parse(path); err != nil {
 			log.Printf("skip %s: %v", path, err)
 			return nil
@@ -84,14 +88,19 @@ func (p *Page) build(draft bool) []Page {
 		if isDraft, ok := page.Meta["draft"].(bool); ok && isDraft && !draft {
 			return nil
 		}
-		basename := strings.TrimSuffix(filepath.Base(page.FilePath), ".md")
+
+		basename = strings.TrimSuffix(filepath.Base(page.FilePath), ".md")
+
 		var outpath string
 		if basename == "index" {
 			outpath = filepath.Join(conf.Main.Output, "index.html")
+		} else if check {
+			relPath, _ := filepath.Rel("content", path)
+			relPath = strings.TrimSuffix(relPath, ".md")
+			outpath = filepath.Join(conf.Main.Output, relPath, "index.html")
 		} else {
 			outpath = filepath.Join(conf.Main.Output, basename, "index.html")
 		}
-
 		htmlContent, err := page.WriteHTML(page.Content)
 		if err != nil {
 			log.Printf("%s: %v", path, err)
@@ -125,6 +134,11 @@ func indexBuild(pages []Page) error {
 
 	for _, page := range pages {
 		if filepath.Base(page.FilePath) == "index.md" {
+			continue
+		}
+
+		relPath, _ := filepath.Rel("content", page.FilePath)
+		if !strings.HasPrefix(relPath, "blog/") {
 			continue
 		}
 
