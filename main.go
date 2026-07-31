@@ -8,10 +8,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var conf Config
 var p Page
+var t Template
 
 func main() {
 	if len(os.Args) < 2 {
@@ -37,8 +39,8 @@ func main() {
 		}
 
 		p.build(*draft)
-
 		fmt.Println("building site...")
+
 	default:
 		fmt.Fprintln(os.Stderr, "usage: dec <command> [flags]")
 		os.Exit(1)
@@ -46,7 +48,11 @@ func main() {
 }
 
 func (p *Page) build(draft bool) {
-	_ = filepath.WalkDir("content", func(path string, d fs.DirEntry, err error) error {
+	if err := os.CopyFS(conf.Main.Output, os.DirFS("static")); err != nil {
+		log.Printf("failed to copy static files: %v", err)
+	}
+
+	err := filepath.WalkDir("content", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -61,12 +67,26 @@ func (p *Page) build(draft bool) {
 		}
 
 		if isDraft, ok := p.Meta["draft"].(bool); ok && isDraft && !draft {
+			fmt.Println("ada draft")
+			return nil
+		}
+		basename := strings.TrimSuffix(filepath.Base(p.FilePath), ".md")
+		outpath := filepath.Join(conf.Main.Output, basename, "index.html")
+
+		htmlContent, err := p.WriteHTML(p.Content)
+		if err != nil {
+			log.Printf("%s: %v", path, err)
 			return nil
 		}
 
-		if err := p.WriteHTML(p.Content); err != nil {
-			log.Printf("%s: %v", path, err)
+		if err := t.render("layouts/single.html", "layouts/header.html",
+			"layouts/footer.html", outpath, htmlContent); err != nil {
+			log.Printf("render error %s: %v", path, err)
 		}
+
 		return nil
 	})
+	if err != nil {
+		log.Printf("%v", err)
+	}
 }

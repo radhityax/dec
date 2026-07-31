@@ -9,7 +9,6 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -63,22 +62,12 @@ func (p *Page) parse(filecontent string) error {
 	return nil
 }
 
-func (p *Page) WriteHTML(text string) error {
-	basename := strings.TrimSuffix(filepath.Base(p.FilePath), ".md")
-	outpath := filepath.Join(conf.Main.Output, basename, "index.html")
-	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {
-		return fmt.Errorf("failed to create dir: %w", err)
-	}
-
+func (p *Page) WriteHTML(text string) (string, error) {
 	md := goldmark.New(goldmark.WithRendererOptions(html.WithUnsafe()))
 	var buf bytes.Buffer
 	if err := md.Convert([]byte(text), &buf); err != nil {
-		return fmt.Errorf("%w", err)
+		return "", err
 	}
 
-	if err := os.WriteFile(outpath, buf.Bytes(), 0644); err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	return nil
+	return buf.String(), nil
 }
