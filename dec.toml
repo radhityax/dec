@@ -1,5 +1,9 @@
 [main]
 title = "radhitya.org"
-url = "localhost"
+subtitle = "personal site"
+url = "https://radhitya.org"
 output = "public"
 amount = 5
+
+[server]
+Port = "3333"

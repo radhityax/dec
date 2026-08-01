@@ -2,8 +2,7 @@ dec
 ====
 
 simple static site generator inspired by [werc](https://cat-v.org) 
-and written in Go.
-
+and written in Go. it has plain web server to see the result.
 
 build
 -----
@@ -23,10 +22,7 @@ $ dec build
 ```
 
 ```
-Usage of build:
-  -config string
-        config file
-  -draft
+$ dec help
 ```
 
 template

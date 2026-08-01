@@ -8,17 +8,17 @@
 </head>
 <body>
     <header>
-        <a href="/" class="site-title">{{ .Site.Title }}</a>
+        <h1 class="site-title"><a href="/">{{ .Site.Title }}</a>{{ if .Site.Subtitle }}<span class="site-subtitle">{{ .Site.Subtitle }}</span>{{ end }}</h1>
     </header>
-    
-    <div class="container">
+
+    <div class="mainContent">
         <nav id="side-bar">
             <ul>
                 <li><a href="/">&rsaquo; home</a></li>
                 <li><a href="/blog">&rsaquo; blog</a></li>
             </ul>
         </nav>
-        
+
         <article>
             <h1>{{ .Title }}</h1>
             <time>{{ .Date }}</time>
@@ -27,9 +27,11 @@
             </div>
         </article>
     </div>
-    
+
     <footer>
-        <p>&copy; {{ now | dateFormat "2006" }} {{ .Site.Title }}</p>
+        <div class="left">
+            <p>&copy; {{ now | dateFormat "2006" }} {{ .Site.Title }}</p>
+        </div>
     </footer>
 </body>
 </html>

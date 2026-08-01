@@ -11,6 +11,7 @@ type MainConfig struct {
 	Output   string
 	Amount   int
 }
+
 type Config struct {
 	Main MainConfig
 }

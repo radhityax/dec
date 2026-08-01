@@ -22,10 +22,14 @@ var t Template
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "usage: dec <command> [flags]")
+		fmt.Fprintln(os.Stderr, "see \"dec help\" for further information")
 		os.Exit(1)
 	}
 
 	switch os.Args[1] {
+	case "live":
+		live()
+
 	case "build":
 		buildCmd := flag.NewFlagSet("build", flag.ExitOnError)
 		draft := buildCmd.Bool("draft", false, "")
@@ -51,8 +55,13 @@ func main() {
 		generateRSS(pages)
 		fmt.Println("building site...")
 
+	case "help":
+		fmt.Println("help - list of commands")
+		fmt.Println("build - build the site")
+		fmt.Println("live - temporary web server on port 1204")
 	default:
 		fmt.Fprintln(os.Stderr, "usage: dec <command> [flags]")
+		fmt.Fprintln(os.Stderr, "see \"dec help\" for further information")
 		os.Exit(1)
 	}
 }
