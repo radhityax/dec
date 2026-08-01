@@ -9,7 +9,10 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
+	"time"
 )
 
 type Page struct {
@@ -70,4 +73,48 @@ func (p *Page) WriteHTML(text string) (string, error) {
 	}
 
 	return buf.String(), nil
+}
+
+func generateRSS(pages []Page) error {
+	var posts []Page
+	for _, page := range pages {
+		relPath, _ := filepath.Rel("content", page.FilePath)
+		if strings.HasPrefix(relPath, "blog/") && filepath.Base(page.FilePath) != "index.md" {
+			posts = append(posts, page)
+		}
+	}
+	sort.Slice(posts, func(i, j int) bool {
+		di, _ := posts[i].Meta["date"].(time.Time)
+		dj, _ := posts[j].Meta["date"].(time.Time)
+		return di.After(dj)
+	})
+
+	if len(posts) > 20 {
+		posts = posts[:20]
+	}
+	var buf bytes.Buffer
+	buf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	buf.WriteString(`<rss version="2.0"><channel>`)
+	buf.WriteString(fmt.Sprintf(`<title>%s</title>`, conf.Main.Title))
+	buf.WriteString(fmt.Sprintf(`<link>%s</link>`, conf.Main.Url))
+	buf.WriteString(`<description>Recent posts</description>`)
+
+	for _, post := range posts {
+		title, _ := post.Meta["title"].(string)
+		date, _ := post.Meta["date"].(time.Time)
+		basename := strings.TrimSuffix(filepath.Base(post.FilePath), ".md")
+		url := fmt.Sprintf("%s/%s/", conf.Main.Url, basename)
+
+		buf.WriteString(`<item>`)
+		buf.WriteString(fmt.Sprintf(`<title>%s</title>`, title))
+		buf.WriteString(fmt.Sprintf(`<link>%s</link>`, url))
+		buf.WriteString(fmt.Sprintf(`<pubDate>%s</pubDate>`, date.Format(time.RFC1123Z)))
+		buf.WriteString(fmt.Sprintf(`<guid>%s</guid>`, url))
+		buf.WriteString(`</item>`)
+	}
+
+	buf.WriteString(`</channel></rss>`)
+
+	outpath := filepath.Join(conf.Main.Output, "index.xml")
+	return os.WriteFile(outpath, buf.Bytes(), 0644)
 }

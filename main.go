@@ -48,7 +48,7 @@ func main() {
 
 		pages := p.build(*draft)
 		indexBuild(pages)
-
+		generateRSS(pages)
 		fmt.Println("building site...")
 
 	default:
@@ -75,10 +75,8 @@ func (p *Page) build(draft bool) []Page {
 		}
 
 		var page Page
-		var check bool
 		var basename string
 		page.FilePath = path
-		check = strings.Contains(path, "blog")
 
 		if err := page.parse(path); err != nil {
 			log.Printf("skip %s: %v", path, err)
@@ -94,10 +92,6 @@ func (p *Page) build(draft bool) []Page {
 		var outpath string
 		if basename == "index" {
 			outpath = filepath.Join(conf.Main.Output, "index.html")
-		} else if check {
-			relPath, _ := filepath.Rel("content", path)
-			relPath = strings.TrimSuffix(relPath, ".md")
-			outpath = filepath.Join(conf.Main.Output, relPath, "index.html")
 		} else {
 			outpath = filepath.Join(conf.Main.Output, basename, "index.html")
 		}
@@ -200,7 +194,7 @@ func indexBuild(pages []Page) error {
 		}
 
 		data := IndexData{
-			Site:       Site{Title: conf.Main.Title},
+			Site:       Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
 			Posts:      pagePosts,
 			Pagination: pagination,
 		}

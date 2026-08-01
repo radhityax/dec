@@ -10,7 +10,8 @@ import (
 )
 
 type Site struct {
-	Title string
+	Title    string
+	Subtitle string
 }
 
 type Template struct {
@@ -76,7 +77,7 @@ func (t *Template) render(file, header, footer, outpath, htmlContent string, pag
 		Title: title,
 		Date:  dateStr,
 		Body:  htmlContent,
-		Site:  Site{Title: conf.Main.Title},
+		Site:  Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
 	}
 
 	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {

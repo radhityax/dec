@@ -5,10 +5,11 @@ import (
 )
 
 type MainConfig struct {
-	Title  string
-	Url    string
-	Output string
-	Amount int
+	Title    string
+	Subtitle string
+	Url      string
+	Output   string
+	Amount   int
 }
 type Config struct {
 	Main MainConfig
