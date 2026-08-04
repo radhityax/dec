@@ -7,25 +7,15 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <header>
-        <h1 class="site-title"><a href="/">{{ .Site.Title }}</a>{{ if .Site.Subtitle }}<span class="site-subtitle">{{ .Site.Subtitle }}</span>{{ end }}</h1>
-    </header>
+    {{ template "header.html" . }}
 
-    <div class="mainContent">
-        <nav id="side-bar">
-            <ul>
-                <li><a href="/">&rsaquo; home</a></li>
-                <li><a href="/blog">&rsaquo; blog</a></li>
-            </ul>
-        </nav>
-
-        <article>
-            <h1>{{ .Title }}</h1>
-            <time>{{ .Date }}</time>
-            <div class="content">
-                {{ .Body | safeHTML }}
-            </div>
-        </article>
+    <article>
+        <h1>{{ .Title }}</h1>
+        <time>{{ .Date }}</time>
+        <div class="content">
+            {{ .Body | safeHTML }}
+        </div>
+    </article>
     </div>
 
     <footer>

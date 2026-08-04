@@ -15,16 +15,18 @@ type Site struct {
 }
 
 type Template struct {
-	Title string
-	Date  string
-	Body  string
-	Site  Site
+	Title   string
+	Date    string
+	Body    string
+	Site    Site
+	Submenu []SubmenuConfig
 }
 
 type IndexData struct {
 	Site       Site
 	Posts      []Post
 	Pagination Pagination
+	Submenu    []SubmenuConfig
 }
 
 type Post struct {
@@ -74,10 +76,11 @@ func (t *Template) render(file, header, footer, outpath, htmlContent string, pag
 	}
 
 	data := Template{
-		Title: title,
-		Date:  dateStr,
-		Body:  htmlContent,
-		Site:  Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
+		Title:   title,
+		Date:    dateStr,
+		Body:    htmlContent,
+		Site:    Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
+		Submenu: conf.Submenu,
 	}
 
 	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {

@@ -7,47 +7,37 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <header>
-        <h1 class="site-title"><a href="/">{{ .Site.Title }}</a>{{ if .Site.Subtitle }}<span class="site-subtitle">{{ .Site.Subtitle }}</span>{{ end }}</h1>
-    </header>
+    {{ template "header.html" . }}
 
-    <div class="mainContent">
-        <nav id="side-bar">
-            <ul>
-                <li><a href="/">&rsaquo; home</a></li>
-                <li><a href="/blog">&rsaquo; blog</a></li>
-            </ul>
+    <article>
+        <h1>Blog</h1>
+        {{ if .Posts }}
+        <div class="posts">
+            {{ range .Posts }}
+            <article>
+                <time>{{ .Date }}</time>
+                <a href="{{ .URL }}">{{ .Title }}</a>
+            </article>
+            {{ end }}
+        </div>
+
+        {{ if or .Pagination.HasPrev .Pagination.HasNext }}
+        <nav class="pagination">
+            {{ if .Pagination.HasPrev }}
+            <a href="{{ .Pagination.PrevURL }}">Previous</a>
+            {{ end }}
+
+            <span>Page {{ .Pagination.CurrentPage }} of {{ .Pagination.TotalPages }}</span>
+
+            {{ if .Pagination.HasNext }}
+            <a href="{{ .Pagination.NextURL }}">Next</a>
+            {{ end }}
         </nav>
-
-        <article>
-            <h1>Blog</h1>
-            {{ if .Posts }}
-            <div class="posts">
-                {{ range .Posts }}
-                <article>
-                    <time>{{ .Date }}</time>
-                    <a href="{{ .URL }}">{{ .Title }}</a>
-                </article>
-                {{ end }}
-            </div>
-
-            {{ if or .Pagination.HasPrev .Pagination.HasNext }}
-            <nav class="pagination">
-                {{ if .Pagination.HasPrev }}
-                <a href="{{ .Pagination.PrevURL }}">Previous</a>
-                {{ end }}
-
-                <span>Page {{ .Pagination.CurrentPage }} of {{ .Pagination.TotalPages }}</span>
-
-                {{ if .Pagination.HasNext }}
-                <a href="{{ .Pagination.NextURL }}">Next</a>
-                {{ end }}
-            </nav>
-            {{ end }}
-            {{ else }}
-            <p>No posts yet.</p>
-            {{ end }}
-        </article>
+        {{ end }}
+        {{ else }}
+        <p>No posts yet.</p>
+        {{ end }}
+    </article>
     </div>
 
     <footer>

@@ -12,6 +12,12 @@ type MainConfig struct {
 	Amount   int
 }
 
+type SubmenuConfig struct {
+	Name string
+	Url  string
+}
+
 type Config struct {
-	Main MainConfig
+	Main    MainConfig
+	Submenu []SubmenuConfig
 }

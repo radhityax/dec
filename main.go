@@ -26,6 +26,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if _, err := toml.DecodeFile("dec.toml", &conf); err != nil {
+		log.Fatal(err)
+	}
+
 	switch os.Args[1] {
 	case "live":
 		live()
@@ -36,14 +40,10 @@ func main() {
 		configPath := buildCmd.String("config", "", "config file")
 		buildCmd.Parse(os.Args[2:])
 
-		path := "dec.toml"
 		if *configPath != "" {
-			path = *configPath
-		}
-
-		_, err := toml.DecodeFile(path, &conf)
-		if err != nil {
-			os.Exit(1)
+			if _, err := toml.DecodeFile(*configPath, &conf); err != nil {
+				log.Fatal(err)
+			}
 		}
 
 		if conf.Main.Amount <= 0 {
@@ -169,7 +169,7 @@ func indexBuild(pages []Page) error {
 		"now":        func() time.Time { return time.Now() },
 	}
 
-	tmpl, err := template.New("blog.html").Funcs(funcMap).ParseFiles("layouts/blog.html")
+	tmpl, err := template.New("blog.html").Funcs(funcMap).ParseFiles("layouts/blog.html", "layouts/header.html")
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
@@ -206,6 +206,7 @@ func indexBuild(pages []Page) error {
 			Site:       Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
 			Posts:      pagePosts,
 			Pagination: pagination,
+			Submenu:    conf.Submenu,
 		}
 
 		var outpath string
